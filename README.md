@@ -1,6 +1,7 @@
 # hangman
 
-# psuedocode
+psuedocode:
+
 At start of game:
 Select Random Word (5-12 char length), display word  ( _ _ _ _ _ )
 
