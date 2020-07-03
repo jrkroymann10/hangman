@@ -1,12 +1,12 @@
 require 'pry'
 
 class GameDisplay
-  attr_accessor :display, :letters_used, :turns
-  attr_reader :word, :turns_display
+  attr_accessor :display, :letters_used, :turns, :turns_display
+  attr_reader :word
   def initialize
     @word = random_word_generator.downcase
-    @letters_used = ' | words used:'
-    @turns = 7
+    @letters_used = ' | letters used:'
+    @turns = 12
     @turns_display = " | turns left: #{@turns}"
     @display = '|'
     for i in 0...@word.length
@@ -22,14 +22,18 @@ class GameDisplay
     words[temp]
   end
   
-  def update_board(letter)
-    if @word.include? letter
-      temp = ((@word.index(letter) + 1) * 2) - 1
-      @display[temp] = letter
-    else 
-      update_letters_used(letter)
+  def update_board(guess)
+    if guess.length == 1
+      if @word.include? guess
+        correct_letter_guess(guess)
+      else 
+        incorrect_letter_guess(guess)
+      end
+    else
+      win_check(guess)
     end
-    @turns -= 1
+    @turns = @turns - 1
+    update_turns_display
   end
 
   def view_board
@@ -38,8 +42,17 @@ class GameDisplay
 
   private
 
+  def view_word
+    show_word
+    view_board
+  end
+
   def update_letters_used(letter)
     @letters_used += " #{letter}"
+  end
+
+  def update_turns_display
+    @turns_display = " | turns left: #{@turns}"
   end
 
   def clean_words(words)
@@ -58,10 +71,48 @@ class GameDisplay
     correct_words
   end
 
+  def show_word
+    for i in 0...@word.length
+      temp = ((i + 1) * 2)
+      @display[temp] = @word[i]
+    end
+  end
 
+  def win_check(guess)
+    if guess == @word
+      puts ''
+      puts "congrats! you've guessed the correct pattern!"
+      puts ''
+      view_word
+      puts '------------------------------------------------------------'
+    else 
+      puts ''
+      puts 'keep on trying!'
+      puts '------------------------------------------------------------'
+      view_board
+    end
+  end
+
+  def correct_letter_guess(guess)
+    puts ''
+    puts 'solid guess!'
+    puts '------------------------------------------------------------'
+    places = []
+    for i in 0...@word.length
+      if @word[i] == guess
+        places.push(i)
+      end
+    end
+    for i in 0...places.length
+      temp = (places[i] + 1) * 2 
+      @display[temp] = guess
+    end
+  end
+
+  def incorrect_letter_guess(guess)
+    puts ''
+    puts 'not this time!'
+    puts '------------------------------------------------------------'
+    update_letters_used(guess)
+  end
 end
-
-x = GameDisplay.new
-puts x.display
-x.update_board('a')
-x.view_board
